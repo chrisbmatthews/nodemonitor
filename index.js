@@ -49,8 +49,34 @@ var server = http.createServer((req, res) => {
         //wrap up the stream...
         buffer += decoder.end();
 
-        //send the response
-        res.end('Hello World\n');
+        //choose our handler form the router, or the notFound one if the path isn't defined...
+        var chosenHandler = typeof(router[trimmedPath]) !== "undefined" ? router[trimmedPath] : handlers.notFound;
+
+        //construct the data to send ot the handler...
+        var data = {
+            'trimmedPath': trimmedPath,
+            'urlQuery': urlQuery,
+            'method': method,
+            'headers': headers,
+            'payload': buffer
+        };
+
+        //call the handler...
+        chosenHandler(data, (statusCode, payload) => {
+            //default to status 200 if not given
+            statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
+
+            //default to empty obj if not give
+            payload = typeof(payload) == 'object' ? payload : {};
+
+            //convert the payload to a string...
+            var payloadString = JSON.stringify(payload);
+
+            //now return...
+            res.writeHead(statusCode);
+            res.end(payloadString);
+
+        });
 
         //log the path from the request
         console.log('Received request on ' + trimmedPath + " with method: " + method + " with query: ", urlQuery);
@@ -65,3 +91,25 @@ var server = http.createServer((req, res) => {
 server.listen(3000, () => {
     console.log('Listeing on port 3000');
 });
+
+//this object will hold all our handler logic...
+var handlers = {};
+
+//here is a function to handle the 'sample' path...
+handlers.sampleHandler = (data, callback) => {
+    //callback should send back an http status code + a payload
+    callback(406, { "name" : "sampleHandler"});
+};
+
+//here is the default handler...
+handlers.notFound = (data, callback) => {
+    //callback should send back an http status code & no payload required
+    callback(404);
+};
+
+//define a request router...
+//this is basically a hashmap...
+var router = {
+    //if the path is "sample", call the sampleHandler...
+    "sample": handlers.sampleHandler
+};
