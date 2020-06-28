@@ -16,7 +16,7 @@
  const fs = require('fs');
 
  //All server logic here
-var unifiedServer = (req, res) => {
+let unifiedServer = (req, res) => {
     console.log('herer');
     //this is the callback for requests
 
@@ -152,9 +152,14 @@ handlers.notFound = (data, callback) => {
     callback(404);
 };
 
+handlers.ping = (data, callback) => {
+    callback(200);
+};
+
 //define a request router...
 //this is basically a hashmap...
 var router = {
     //if the path is "sample", call the sampleHandler...
-    "sample": handlers.sampleHandler
+    'sample': handlers.sampleHandler,
+    'ping': handlers.ping
 };
