@@ -14,6 +14,12 @@
  //get config...
  const config = require('./config'); //this is the envToExport from that file...
  const fs = require('fs');
+ const dataLib = require('./lib/data');
+
+ //quick tets for data writing...
+ /*dataLib.create('temp', 'tempfile', {'a':100}, (err) => {
+    console.log(err);
+ });*/
 
  //All server logic here
 let unifiedServer = (req, res) => {
