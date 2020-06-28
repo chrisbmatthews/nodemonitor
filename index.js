@@ -5,15 +5,19 @@
  //deps
  //for http server
  const http = require('http');
+ //for https server
+ const https = require('https');
  //for parsing the url
  const url = require('url');
  //for parsing payload from request
  const StringDecoder = require('string_decoder').StringDecoder;
  //get config...
  const config = require('./config'); //this is the envToExport from that file...
+ const fs = require('fs');
 
-//server should respond to all requests with a string
-var server = http.createServer((req, res) => {
+ //All server logic here
+var unifiedServer = (req, res) => {
+    console.log('herer');
     //this is the callback for requests
 
     //get the url & parse it (true = parse the query string, too)
@@ -87,13 +91,51 @@ var server = http.createServer((req, res) => {
 
         console.log("Payload was: ", buffer);
     });
+};
 
+//server should respond to all requests with a string
+/*var serverHttp = http.createServer((req, res) => {
+    unifiedServer(req, res);
+});*/
+
+//small functional programing refactor - transitively use the function unifiedServer directly
+/* that is:
+f(a, b) { x(a, b) }
+
+is exactly like calling 'x' directly
+
+with this transitive shortcut, you don't even need to prove the function params since they 'cancel' each other out -- they are
+defined above as:
+x(a, b) => {
+    they are here
+}
+this *only* works if the unifiedServer is defined *above* this point.  if it is defined below, I believe 'unifiedServer' will be considered 'undefined' and thus nothing will process the request
+*/
+var serverHttp = http.createServer(unifiedServer);
+
+//start the server have it listen on http port...
+serverHttp.listen(config.httpPort, () => {
+    console.log(`Listeing on port ${config.httpPort} for env ${config.envName}`);
 });
 
-//start the server have it listen on 3000
-server.listen(config.port, () => {
-    console.log(`Listeing on port ${config.port} for env ${config.envName}`);
+//startr https server...
+var httpsServerOptions = {
+    'key': fs.readFileSync('./https/key.pem'),
+    'cert': fs.readFileSync('./https/cert.pem')
+};
+
+/*var serverHttps = https.createServer(httpsServerOptions, (req, res) => {
+    unifiedServer(req, res);
+});*/
+
+//FP modification...
+var serverHttps = https.createServer(httpsServerOptions, unifiedServer);
+
+//start the server have it listen on https port...
+serverHttps.listen(config.httpsPort, () => {
+    console.log(`Listeing on port ${config.httpsPort} for env ${config.envName}`);
 });
+
 
 //this object will hold all our handler logic...
 var handlers = {};
