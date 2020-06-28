@@ -20,6 +20,26 @@
  /*dataLib.create('temp', 'tempfile', {'a':100}, (err) => {
     console.log(err);
  });*/
+ /*dataLib.update('temp', 'tempfile', {'aba':101}, (err) => {
+    console.log(err);
+ });
+
+ dataLib.read('temp', 'tempfile', (err, data) => {
+    if (!err) {
+        if (typeof(data) == 'string') {
+            console.log('still a string');
+            let asObj = JSON.parse(data);
+            console.log('as an object: ' + asObj);
+        }
+        console.log(data);
+    } else {
+        console.log(err);
+    }
+ });
+
+ dataLib.delete('temp', 'tempfile', (err) => {
+    console.log(err);
+ });*/
 
  //All server logic here
 let unifiedServer = (req, res) => {
