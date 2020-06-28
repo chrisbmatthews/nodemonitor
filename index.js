@@ -9,6 +9,8 @@
  const url = require('url');
  //for parsing payload from request
  const StringDecoder = require('string_decoder').StringDecoder;
+ //get config...
+ const config = require('./config'); //this is the envToExport from that file...
 
 //server should respond to all requests with a string
 var server = http.createServer((req, res) => {
@@ -73,6 +75,7 @@ var server = http.createServer((req, res) => {
             var payloadString = JSON.stringify(payload);
 
             //now return...
+            res.setHeader("Content-Type", "application/json");
             res.writeHead(statusCode);
             res.end(payloadString);
 
@@ -88,8 +91,8 @@ var server = http.createServer((req, res) => {
 });
 
 //start the server have it listen on 3000
-server.listen(3000, () => {
-    console.log('Listeing on port 3000');
+server.listen(config.port, () => {
+    console.log(`Listeing on port ${config.port} for env ${config.envName}`);
 });
 
 //this object will hold all our handler logic...
