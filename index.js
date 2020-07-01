@@ -15,6 +15,7 @@
  const config = require('./config'); //this is the envToExport from that file...
  const fs = require('fs');
  const dataLib = require('./lib/data');
+ const handlers = require('./lib/handlers');
 
  //quick tets for data writing...
  /*dataLib.create('temp', 'tempfile', {'a':100}, (err) => {
@@ -80,17 +81,18 @@ let unifiedServer = (req, res) => {
     req.on("end", () => {
         //wrap up the stream...
         buffer += decoder.end();
+        let payloadObj = JSON.parse(buffer);
 
         //choose our handler form the router, or the notFound one if the path isn't defined...
         var chosenHandler = typeof(router[trimmedPath]) !== "undefined" ? router[trimmedPath] : handlers.notFound;
 
-        //construct the data to send ot the handler...
+        //construct the data to send to the handler...
         var data = {
             'trimmedPath': trimmedPath,
             'urlQuery': urlQuery,
             'method': method,
             'headers': headers,
-            'payload': buffer
+            'payload': payloadObj
         };
 
         //call the handler...
@@ -163,29 +165,12 @@ serverHttps.listen(config.httpsPort, () => {
 });
 
 
-//this object will hold all our handler logic...
-var handlers = {};
-
-//here is a function to handle the 'sample' path...
-handlers.sampleHandler = (data, callback) => {
-    //callback should send back an http status code + a payload
-    callback(406, { "name" : "sampleHandler"});
-};
-
-//here is the default handler...
-handlers.notFound = (data, callback) => {
-    //callback should send back an http status code & no payload required
-    callback(404);
-};
-
-handlers.ping = (data, callback) => {
-    callback(200);
-};
 
 //define a request router...
 //this is basically a hashmap...
 var router = {
     //if the path is "sample", call the sampleHandler...
     'sample': handlers.sampleHandler,
+    'users': handlers.users,
     'ping': handlers.ping
 };
