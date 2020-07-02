@@ -2,20 +2,21 @@
  Primary file for the api
  */
 
- //deps
- //for http server
- const http = require('http');
- //for https server
- const https = require('https');
- //for parsing the url
- const url = require('url');
- //for parsing payload from request
- const StringDecoder = require('string_decoder').StringDecoder;
- //get config...
- const config = require('./config'); //this is the envToExport from that file...
- const fs = require('fs');
- const dataLib = require('./lib/data');
- const handlers = require('./lib/handlers');
+//deps
+//for http server
+const http = require('http');
+//for https server
+const https = require('https');
+//for parsing the url
+const url = require('url');
+//for parsing payload from request
+const StringDecoder = require('string_decoder').StringDecoder;
+//get config...
+const config = require('./config'); //this is the envToExport from that file...
+const fs = require('fs');
+const dataLib = require('./lib/data');
+const handlers = require('./lib/handlers');
+const helpers = require('./lib/helpers');
 
  //quick tets for data writing...
  /*dataLib.create('temp', 'tempfile', {'a':100}, (err) => {
@@ -81,7 +82,7 @@ let unifiedServer = (req, res) => {
     req.on("end", () => {
         //wrap up the stream...
         buffer += decoder.end();
-        let payloadObj = JSON.parse(buffer);
+        let payloadObj = helpers.jsonToObject(buffer);
 
         //choose our handler form the router, or the notFound one if the path isn't defined...
         var chosenHandler = typeof(router[trimmedPath]) !== "undefined" ? router[trimmedPath] : handlers.notFound;
