@@ -9,13 +9,15 @@ var environments = {};
 environments.staging = {
     "httpPort": 3000,
     "httpsPort": 3443,
-    "envName": "staging"
+    "envName": "staging",
+    "hashingSecret": "secret"
 };
 
 environments.production = {
     "httpPort": 5000,
     "httpsPort": 5443,
-    "envName": "production"
+    "envName": "production",
+    "hashingSecret": "secret"
 };
 
 //determine which env to use, as passed in as NODE_ENV on the command-line (ie: 'NODE_ENV=staging node index.js')
